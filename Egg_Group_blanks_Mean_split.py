@@ -1,14 +1,28 @@
 import pandas as pd
 import numpy as np
-#import matplotlib.pyplot as plt
+import os
+from os import listdir
+
+for file in os.dirlist(''):
+    pass
+
+
+
+
 
 
 data = pd.read_csv("Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set1.csv")
 data
 
+
+
+# for each file process
+
+
+#Export the mean of the data
 df_mean = data.groupby(['group_id']).mean()
 print(df_mean.head())
-
+df_mean.to_csv("mean__Day7_Batch_8_Calls_H3O_EN113_set1.csv")
 
 df_max = data.groupby(['group_id']).max()
 print(df_max)
