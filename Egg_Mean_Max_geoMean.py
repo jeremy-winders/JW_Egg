@@ -34,7 +34,6 @@ print(data_agg.head())
 data_agg.columns
 
 
-
 data_agg[data_agg[('group_id', '')] == '1']
 
 data_agg[data_agg[('group_id', '')] == '1'][('E/N_Act [Td]', 'mean')]
