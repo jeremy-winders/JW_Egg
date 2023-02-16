@@ -6,7 +6,8 @@ from os import listdir
 
 #for file in os.dirlist('Segmented_data/O2/113'):pass
 
-for file in os.listdir('Segmented_data/O2/113'):pass
+for file in os.listdir('Segmented_data/O2/113'):
+    pass
 #errors above move on
 
 
