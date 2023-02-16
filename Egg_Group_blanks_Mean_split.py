@@ -3,19 +3,89 @@ import numpy as np
 import os
 from os import listdir
 
-for file in os.dirlist(''):
-    pass
+
+#for file in os.dirlist('Segmented_data/O2/113'):pass
+
+for file in os.listdir('Segmented_data/O2/113'):pass
+#errors above move on
+
+
+
+# Define the directory containing the files
+directory = "Segmented_data/O2/113"
+
+# List the files in the directory
+files = os.listdir(directory)
+
+# Process each file
+for file in files:
+    # Construct the full path to the file
+    path = os.path.join(directory, file)
+
+    # Process the file
+    with open(path, "r") as f:
+        data = f.read()
+        # Do something with the file data
 
 
 
 
 
 
-data = pd.read_csv("Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set1.csv")
-data
 
 
 
+
+
+
+
+data1 = pd.read_csv("Segmented_data/H2O/113/Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set1.csv")
+data2 = pd.read_csv("Segmented_data/H2O/113/Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set2.csv")
+data4 = pd.read_csv("Segmented_data/H2O/113/Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set4.csv")
+data5 = pd.read_csv("Segmented_data/H2O/113/Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set5.csv")
+data6 = pd.read_csv("Segmented_data/H2O/113/Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set6.csv")
+
+data1
+data2
+data4
+data5
+data6
+
+#Drop unneeded columns
+data1_Drop = data1.drop(columns=['p-Drift_Act [mbar]','Unnamed: 1', 'AbsTime', 'RelTime', 'E/N_Act [Td]', 'Cycle'])
+data1_Drop.head()
+
+
+
+# Split eggs and blanks
+
+# Define a function to use as the groupby
+def group_key(x):
+    if "Jar_BLK_" in x:
+        return "Jar_BLK"
+    else:
+        return "Other"
+
+# Split the DataFrame based on the group key
+groups = data1_Drop.groupby(group_key)
+
+# Extract the groups
+jar_blk_group = groups.get_group("Jar_BLK")
+other_group = groups.get_group("Other")
+
+
+
+
+
+
+
+
+
+
+
+
+
+#data1_Drop.to_csv("Droptest_H3O_EN113_set1.csv")
 # for each file process
 
 
