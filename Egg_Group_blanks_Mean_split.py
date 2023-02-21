@@ -56,21 +56,30 @@ data1_Drop.head()
 
 # Split eggs and blanks
 
+
 # Define a function to use as the groupby
 def group_key(x):
-    if "Jar_BLK_" in x:
+    if "Jar_BLK_*" in x:
         return "Jar_BLK"
     else:
         return "egg"
 
-# Split the DataFrame based on the group key
-df_data1_split = data1_Drop.groupby('group_id')
-df_data1_split
 
+
+# Split the DataFrame based on the group id
+df_data1_split = data1_Drop.group_key('group_id')   #broken
+
+df_data1_split = data1_Drop.groupby('group_id').mean()
+df_data1_split.head()
+
+df_data1_splitOrder = df_data1_split.sort_values(by=['group_id', ascending=True])  #reorder/sort broken
+df_data1_splitOrder
 
 # Extract the groups
-jar_blk_group = groups.get_group("Jar_BLK)")
-Egg_group = groups.get_group("Eggs")
+jar_blk_group = df_data1_split.groupby('Jar_BLK_*')
+Egg_group = df_data1_split.get_group("Eggs")
+
+
 
 
 
