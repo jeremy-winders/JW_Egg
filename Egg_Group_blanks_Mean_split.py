@@ -1,36 +1,56 @@
 import pandas as pd
 import numpy as np
 import os
-from os import listdir
+
+
+directory = '/Users/jeremy.winders/Documents/GitHub/JW_Egg/JW_Egg/Segmented_data/H2O/113'
+
+batch8dat = pd.DataFrame()
+
+
+def column_round(col, ndigits=3):
+    """
+    Changes a column name to a rounded float of the mass
+    Parameters
+    ----------
+    col: str
+    ndigits: int
+    Returns
+    -------
+    float
+        rounded float of the mass
+    """
+    if col in ["AbsTime", "RelTime", "Cycle", "File"]:
+        # keep the column the same if it's metadata
+        return col
+    else:
+        # the first word in the column name
+        col_mass = str(col).strip().split()[0]
+        col_nums = ".".join(re.findall(r'\d+', col_mass))
+        return round(float(col_nums), ndigits)
 
 
 
+for file in os.listdir(directory):
+    if file.strip().endswith('.csv'):
+        data1 = pd.read_csv(os.path.join('/Users/jeremy.winders/Documents/GitHub/JW_Egg/JW_Egg/Segmented_data/H2O/113', file))
+        data1.drop(data1.columns[data1.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
+        data1_Drop = data1.drop(columns=['p-Drift_Act [mbar]', 'AbsTime', 'RelTime', 'E/N_Act [Td]', 'Cycle'])
+        # Split eggs and blanks
+        blanks = data1_Drop.loc[data1_Drop["group_id"].str.contains("Jar_BLK_*")]
+        eggs = data1_Drop.loc[~data1_Drop["group_id"].str.contains("Jar_BLK_*")]
+        print(blanks.columns)
+        blanks_mean=blanks.mean()
+        eggs_sub = eggs.sub(blanks_mean, axis='columns')
+        clean_eggs = eggs_sub.groupby('group_id').mean()
+        
 
 
-#errors above move on
-#for file in os.dirlist('Segmented_data/O2/113'):pass
-for file in os.listdir('Segmented_data/H2O/113'):
-    pass
+
+def 
 
 
 
-# try this way:
-
-# Define the directory containing the files
-directory = "/Users/jeremy.winders/Documents/GitHub/JW_Egg/JW_Egg/Segmented_data/H2O/113"
-
-# List the files in the directory
-files = os.listdir(directory)
-
-# Process each file
-for file in files:
-    path = os.path.join(directory, file)#Construct the full path to the file
-    with open(path, "r") as f:# Process the file
-        data = f.read()
-
-#works but error AttributeError: 'str' object has no attribute 'to_csv
-#data_Reset = data.reset_index()
-data.to_csv("Droptest_H3O_EN113_set1.csv")
 
 ############################################################################
 ###---Start over single import and export---###
@@ -80,12 +100,9 @@ jar_blk_group = df_data1_split.groupby('Jar_BLK_*')
 Egg_group = df_data1_split.get_group("Eggs")
 
 
-
-
-
-
-data1_1 = data1_Drop[data1_Drop['Jar_BLK_1'].notna()]
-data1_1
+#Try this way?
+data1_1 = data1_Drop[data1_Drop['Jar_BLK_*'].notna()]
+data1_
 
 
 
