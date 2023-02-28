@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-
+import re
 
 directory = '/Users/jeremy.winders/Documents/GitHub/JW_Egg/JW_Egg/Segmented_data/H2O/113'
 
@@ -40,15 +40,47 @@ for file in os.listdir(directory):
         blanks = data1_Drop.loc[data1_Drop["group_id"].str.contains("Jar_BLK_*")]
         eggs = data1_Drop.loc[~data1_Drop["group_id"].str.contains("Jar_BLK_*")]
         print(blanks.columns)
-        blanks_mean=blanks.mean()
+
+
+
+        #blanks_mean = blanks.mean() ---> no idea why Adam wrote this (try the next line instead)
+        blanks_mean = blanks.groupby('group_id').mean()
+        # need to get mean of all blanks
+        blanks_mean_allBLK = blanks_mean.drop['group_id', axis = 1] #issues with this line
+
+####### try debugging here #######
+eggs.to_csv("Segmented_data/Test_Extraction/TEST_eggs.csv") #looks good
+blanks.to_csv("Segmented_data/Test_Extraction/TEST_blanks.csv")
+blanks_mean.to_csv("Segmented_data/Test_Extraction/TEST_blanks_mean.csv")
+
+
+blanks_mean_allBLK.to_csv("Segmented_data/Test_Extraction/TEST_blanks_mean_allBLK.csv")
+blanks_mean_allBLK = blanks_mean.drop('group_id', axis = 1)
+
+
+#try different way to get mean of all blanks
+blanks_mean_allBLK = blanks_mean.loc[blanks_mean["group_id"].str.contains("Jar_BLK_*")] #Key error on group_id
+blanks_mean_allBLK
+
+
+#subraction of blanks from eggs
         eggs_sub = eggs.sub(blanks_mean, axis='columns')
         clean_eggs = eggs_sub.groupby('group_id').mean()
         
 
+#Removes extra info from columns and rounds masses to 1 decimal place
+pattern = r"m(\d+\.\d+)"
+matches = [re.search(pattern, col) for col in clean_eggs.columns]
+col_masses = [match.group(1) if match else None for match in matches]
+col_masses_round = [round(float(col), 1) for col in col_masses]
+col_masses_round
 
 
-def 
 
+
+
+
+ 
 
 
 
