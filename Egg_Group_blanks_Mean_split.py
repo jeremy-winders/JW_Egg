@@ -3,9 +3,66 @@ import numpy as np
 import os
 import re
 
-directory = '/Users/jeremy.winders/Documents/GitHub/JW_Egg/JW_Egg/Segmented_data/H2O/113'
+directory = '/Users/jeremy.winders/Documents/GitHub/JW_Egg/Segmented_data/H2O/113'
+
 
 batch8dat = pd.DataFrame()
+
+
+
+
+
+for file in os.listdir(directory):
+    if file.strip().endswith('.csv'):
+        data1 = pd.read_csv(os.path.join('/Users/jeremy.winders/Documents/GitHub/JW_Egg/Segmented_data/H2O/113', file))
+        data1.drop(data1.columns[data1.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
+        data1_drop = data1.drop(columns=['p-Drift_Act [mbar]', 'AbsTime', 'RelTime', 'E/N_Act [Td]', 'Cycle'])
+        # Split eggs and blanks
+        blanks = data1_drop.loc[data1_drop["group_id"].str.contains("Jar_BLK_*")]
+        eggs = data1_drop.loc[~data1_drop["group_id"].str.contains("Jar_BLK_*")]
+        print(blanks.columns)
+        blanks_mean = blanks.select_dtypes(include=['float', 'int']).mean()
+
+
+
+
+
+
+####### Check exports here #######
+eggs.to_csv("Segmented_data/Test_Extraction/TEST_eggs.csv") #looks good
+blanks.to_csv("Segmented_data/Test_Extraction/TEST_blanks.csv") #looks good
+blanks_mean.to_csv("Segmented_data/Test_Extraction/TEST_blanks_mean.csv") #all columns are nows now but the mean of the blanks (1-12, should be 1-24!!)
+#need to figure out where the missing blanks (13-24) went!
+
+
+
+#subraction of blanks from eggs
+        eggs_sub = eggs.sub(blanks_mean, axis='columns')  #loss of data in group_id column, some rows are negative now 
+        eggs_sub.to_csv("Segmented_data/Test_Extraction/TEST_eggs_sub.csv") 
+        clean_eggs = eggs_sub.groupby('group_id').mean() #loss of ALL data, only column names now
+        clean_eggs.to_csv("Segmented_data/Test_Extraction/TEST_clean_eggs.csv")
+
+
+
+#Removes extra info from columns and rounds masses to 1 decimal place
+        pattern = r"m(\d+\.\d+)"
+        matches = [re.search(pattern, col) for col in clean_eggs.columns]
+        col_masses = [match.group(1) if match else None for match in matches]
+        col_masses_round = [round(float(col), 1) for col in col_masses]
+        col_masses_round  #looks good like it worked
+        col_masses_round.to_csv("Segmented_data/Test_Extraction/TEST_col_masses_round.csv") #cannot export to csv as string "AttributeError: 'list' object has no attribute 'to_csv'"
+
+
+#intergrate the rounded column masses into the dataframe
+
+
+ 
+
+
+
+############################################################################
+###---Start over single import and export---###
+
 
 
 def column_round(col, ndigits=3):
@@ -31,61 +88,14 @@ def column_round(col, ndigits=3):
 
 
 
-for file in os.listdir(directory):
-    if file.strip().endswith('.csv'):
-        data1 = pd.read_csv(os.path.join('/Users/jeremy.winders/Documents/GitHub/JW_Egg/JW_Egg/Segmented_data/H2O/113', file))
-        data1.drop(data1.columns[data1.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-        data1_Drop = data1.drop(columns=['p-Drift_Act [mbar]', 'AbsTime', 'RelTime', 'E/N_Act [Td]', 'Cycle'])
-        # Split eggs and blanks
-        blanks = data1_Drop.loc[data1_Drop["group_id"].str.contains("Jar_BLK_*")]
-        eggs = data1_Drop.loc[~data1_Drop["group_id"].str.contains("Jar_BLK_*")]
-        print(blanks.columns)
-
-
-
-        #blanks_mean = blanks.mean() ---> no idea why Adam wrote this (try the next line instead)
-        blanks_mean = blanks.groupby('group_id').mean()
-        # need to get mean of all blanks
-        blanks_mean_allBLK = blanks_mean.drop['group_id', axis = 1] #issues with this line
-
-####### try debugging here #######
-eggs.to_csv("Segmented_data/Test_Extraction/TEST_eggs.csv") #looks good
-blanks.to_csv("Segmented_data/Test_Extraction/TEST_blanks.csv")
-blanks_mean.to_csv("Segmented_data/Test_Extraction/TEST_blanks_mean.csv")
-
-
-blanks_mean_allBLK.to_csv("Segmented_data/Test_Extraction/TEST_blanks_mean_allBLK.csv")
-blanks_mean_allBLK = blanks_mean.drop('group_id', axis = 1)
-
-
-#try different way to get mean of all blanks
-blanks_mean_allBLK = blanks_mean.loc[blanks_mean["group_id"].str.contains("Jar_BLK_*")] #Key error on group_id
-blanks_mean_allBLK
-
-
-#subraction of blanks from eggs
-        eggs_sub = eggs.sub(blanks_mean, axis='columns')
-        clean_eggs = eggs_sub.groupby('group_id').mean()
-        
-
-#Removes extra info from columns and rounds masses to 1 decimal place
-pattern = r"m(\d+\.\d+)"
-matches = [re.search(pattern, col) for col in clean_eggs.columns]
-col_masses = [match.group(1) if match else None for match in matches]
-col_masses_round = [round(float(col), 1) for col in col_masses]
-col_masses_round
 
 
 
 
 
 
- 
 
 
-
-############################################################################
-###---Start over single import and export---###
 
 
 data1 = pd.read_csv("Segmented_data/H2O/113/Segmented_10cycles_Eggs_Day7_Batch_8_Calls_H3O_EN113_set1.csv")
@@ -172,14 +182,31 @@ Mean_all_Jars.to_csv("Segmented_data/Test_Extraction/mean_all_Jars_Day7_Batch_8_
 
 
 
+#try different way to get mean of all blanks
+blanks_mean_allBLK = blanks_mean.loc[blanks_mean["group_id"].str.contains("Jar_BLK_*")] #Key error on group_id
+blanks_mean_allBLK
+blanks_mean_allBLK = blanks_mean.drop('group_id', axis=1)
+blanks_mean_allBLK.to_csv("Segmented_data/Test_Extraction/TEST_blanks_mean_allBLK.csv")
+blanks_mean_allBLK = blanks_mean.drop('group_id', axis = 1)
 
 
 
 
 
+        #blanks_mean = blanks.mean() ---> no idea why Adam wrote this (try the next line instead)
+        #blanks_mean = blanks.groupby('group_id').mean()
+        blanks_mean = blanks.select_dtypes(include=['float', 'int']).mean()
+
+        # need to get mean of all blanks
+        blanks_mean_allBLK = blanks_mean.drop['group_id', axis = 1] #issues with this line
 
 
-
+#try different way to get mean of all blanks
+blanks_mean_allBLK = blanks_mean.loc[blanks_mean["group_id"].str.contains("Jar_BLK_*")] #Key error on group_id
+blanks_mean_allBLK
+blanks_mean_allBLK = blanks_mean.drop('group_id', axis=1)
+blanks_mean_allBLK.to_csv("Segmented_data/Test_Extraction/TEST_blanks_mean_allBLK.csv")
+blanks_mean_allBLK = blanks_mean.drop('group_id', axis = 1)
 
 
 
