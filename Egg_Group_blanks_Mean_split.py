@@ -41,7 +41,35 @@ group_df = pd.DataFrame({'group': list(groups), 'floatval': list(col_masses), 'c
 mass_means = group_df.groupby('group').mean()
 meandf = mass_means.iloc[list(group_df['group'])]
 group_df["mean_mass"] = list(meandf['floatval'])
-group_df["new_name"] = [ "H30_113_" + str(round(item, 2)) for item in list(group_df["mean_mass"])]
+group_df["new_name"] = [ "EN113_H30_" + str(round(item, 2)) for item in list(group_df["mean_mass"])]
+
+
+#drop all columns but new roudned masses 
+#new_col_names = group_df.drop(columns=['group', 'floatval', 'col_names', 'mean_mass'])
+
+#replace columns names in df in eggs_final with new_col_names
+eggs_final_1 = eggs_final.rename(columns=new_col_names.set_index('col_names')['new_name'].to_dict())
+
+
+#code that looks in rows of dataframe 'eggs_final_1'  to find values that match the  pattern = r"m(\d+\.\d+)"
+#and IF those values match the column named 'col_names' in data frame 'group_df' it replaces the matched value in dataframe 'batch8dfs' with the row value of found in 'new_name' 
+
+eggs_final_1 = eggs_final
+
+for idx, row in eggs_final_1.iterrows():
+    # Loop through the columns of the row
+    for col_name, value in row.iteritems():
+        # Check if the value matches the pattern
+        match = re.match(pattern, value)
+        if match:
+            # If it does, check if the matched value is in the col_names column of group_df
+            matched_value = match.group(1)
+            if matched_value in group_df['col_names'].values:
+                # If it is, replace the matched value with the corresponding new_name value from group_df
+                new_name = group_df.loc[group_df['col_names'] == matched_value, 'new_name'].values[0]
+                eggs_final_1.at[idx, col_name] = new_name
+
+print(eggs_final_1)
 
 
 
@@ -49,6 +77,4 @@ group_df["new_name"] = [ "H30_113_" + str(round(item, 2)) for item in list(group
 
 
 
-
-
-
+#group_df.to_csv("/Users/jeremy.winders/Documents/GitHub/JW_Egg/Segmented_data/Test_Extraction/H30_113_grouped.csv")
