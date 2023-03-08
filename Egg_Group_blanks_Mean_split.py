@@ -44,6 +44,12 @@ group_df["mean_mass"] = list(meandf['floatval'])
 group_df["new_name"] = [ "EN113_H30_" + str(round(item, 2)) for item in list(group_df["mean_mass"])]
 
 
+
+
+
+
+
+
 #drop all columns but new roudned masses 
 #new_col_names = group_df.drop(columns=['group', 'floatval', 'col_names', 'mean_mass'])
 
